@@ -27,4 +27,17 @@ A secure and user-friendly file sharing system that encrypts files using AES-256
 - **Others**: Ngrok for tunneling, File system module for storage and cleanup
 
 ## 📂 Project Structure
+secure-file-sharing/
+│
+├── public/ # Static frontend files
+│ ├── index.html
+│ ├── style.css
+│ └── script.js
+│
+├── uploads/ # Temporary file storage
+│
+├── server.js # Express server & logic
+├── package.json
+└── README.md # Project description
+
 
