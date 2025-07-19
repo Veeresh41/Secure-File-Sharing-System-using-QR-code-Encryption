@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Scan QR Code</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css"/>
+
+  <!-- Font Awesome -->
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+  <div class="container">
+    
+    <!-- QR Code -->
+    <div class="qr-image">
+      <img id="qrCodeImage" src="__QR_IMAGE__" alt="QR Code" width="250" height="250" />
+    </div>
+
+    <!-- Text + Buttons -->
+    <div class="content">
+      <h1>Scan This QR Code</h1>
+      <p>Scan this QR code or copy the link to open it.</p>
+
+      <button class="copy-button" onclick="copyLink()">COPY LINK</button>
+
+      <div class="icon-row">
+        <i class="fas fa-share-alt" title="Share QR" onclick="shareQR()"></i>
+        <i class="fas fa-image" title="Save as Image" onclick="downloadQRImage()"></i>
+        <i class="fas fa-file-pdf" title="Export as PDF" onclick="exportAsPDF()"></i>
+      </div>
+
+      <!-- Countdown -->
+      <div class="countdown-container">
+        <div class="timer-title">Access Duration</div>
+        <div class="timer">
+          <span id="days">0</span> : 
+          <span id="hours">0</span> : 
+          <span id="minutes">0</span> : 
+          <span id="seconds">0</span>
+        </div>
+        <div class="labels">
+          <span>Days</span>
+          <span>Hours</span>
+          <span>Min.</span>
+          <span>Sec.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS -->
+  <script>
+    const link = "__QR_LINK__";
+    const accessSeconds = parseInt('__ACCESS_SECONDS__'); // This will be replaced by backend
+
+    function copyLink() {
+      navigator.clipboard.writeText(link).then(() => {
+        alert("✅ Link copied to clipboard!");
+      });
+    }
+
+    // Web Share API (if supported)
+    function shareQR() {
+      const img = document.getElementById("qrCodeImage");
+      // Convert base64 image to Blob
+      fetch(img.src)
+        .then(res => res.blob())
+        .then(blob => {
+          const file = new File([blob], "qr-code.png", { type: blob.type });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            navigator.share({
+              files: [file],
+              title: "Secure File QR Code",
+              text: "Scan this QR code or use the link below:",
+              url: link
+            })
+            .then(() => console.log("QR image shared successfully"))
+            .catch((error) => console.error("Share failed:", error));
+          } else {
+            // Fallback: share link only
+            if (navigator.share) {
+              navigator.share({
+                title: "Secure File Link",
+                text: "Scan or click this secure link:",
+                url: link,
+              });
+            } else {
+              alert("Sharing images is not supported on this browser.");
+            }
+          }
+        });
+    }
+
+    // Save image
+    function downloadQRImage() {
+      const img = document.getElementById("qrCodeImage");
+      const linkElement = document.createElement("a");
+      linkElement.href = img.src;
+      linkElement.download = "qr-code.png";
+      linkElement.click();
+    }
+
+    // Export PDF
+    function exportAsPDF() {
+      const img = document.getElementById("qrCodeImage");
+      const pdfWindow = window.open("");
+      pdfWindow.document.write(`
+        <html>
+          <head><title>QR PDF</title></head>
+          <body>
+            <h2>Secure File QR Code</h2>
+            <img src="${img.src}" width="300" height="300"/>
+            <p>Link: <a href="${link}">${link}</a></p>
+          </body>
+        </html>
+      `);
+      pdfWindow.document.close();
+      pdfWindow.print();
+    }
+
+    // Timer: use accessSeconds from backend
+    let countdown = accessSeconds;
+
+    const daysSpan = document.getElementById("days");
+    const hoursSpan = document.getElementById("hours");
+    const minutesSpan = document.getElementById("minutes");
+    const secondsSpan = document.getElementById("seconds");
+
+    const updateCountdown = () => {
+      if (countdown <= 0) {
+        // Optional: redirect or hide QR after expiration
+        document.querySelector(".container").innerHTML = "<h2 style='text-align:center'>⏳ QR Code Expired</h2>";
+        return;
+      }
+
+      const d = Math.floor(countdown / (3600 * 24));
+      const h = Math.floor((countdown % (3600 * 24)) / 3600);
+      const m = Math.floor((countdown % 3600) / 60);
+      const s = countdown % 60;
+
+      daysSpan.textContent = d;
+      hoursSpan.textContent = h.toString().padStart(2, '0');
+      minutesSpan.textContent = m.toString().padStart(2, '0');
+      secondsSpan.textContent = s.toString().padStart(2, '0');
+
+      countdown--;
+    };
+
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+  </script>
+</body>
+</html>

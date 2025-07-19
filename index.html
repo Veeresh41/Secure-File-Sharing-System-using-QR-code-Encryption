@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Secret File Sharing</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+</head>
+<body>
+  <div class="glass-card">
+    <img class="illustration" src="images/banner.jpeg" alt="Secure Files" />
+    <h1><i class="fa-solid fa-shield-halved"></i> Secure File Sharing</h1>
+    <div class="subtitle">Encrypt and share files securely with a QR code.</div>
+    <form action="/upload" method="post" enctype="multipart/form-data">
+      <label class="upload-area" for="file">
+        <span class="add-files-btn" id="addFilesBtn">
+          <i class="fa-solid fa-plus"></i>
+          <span>Add Files</span>
+        </span>
+        <input type="file" id="file" name="file" required style="display:none;">
+        <div class="upload-hint" id="uploadHint">1 file, max 50MB total.</div>
+        <div id="fileInfo" style="display:none; margin-top:10px; color:#1976d2 !important; font-weight:600;"></div>
+      </label>
+      <div class="input-group">
+        <i class="fa-solid fa-key"></i>
+        <input type="password" name="password" placeholder="Secret Key" required>
+      </div>
+      <div class="input-group">
+        <i class="fa-solid fa-users"></i>
+        <input type="number" name="maxDownloads" min="1" value="1" required placeholder="Max Downloads">
+      </div>
+      <div class="input-group">
+        <i class="fa-solid fa-clock"></i>
+        <input type="number" name="accessMinutes" min="1" value="10" required placeholder="Access Time (minutes)">
+      </div>
+      <button type="submit"><i class="fa-solid fa-lock"></i> Encrypt & Generate QR</button>
+    </form>
+    <div class="note">
+      <i class="fa-solid fa-circle-info"></i>
+      You will need the secret key to decrypt the file after scanning the QR code.
+    </div>
+  </div>
+  <script>
+    // Show file info and hide add button/hint after file is selected
+    document.getElementById('file').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        document.getElementById('addFilesBtn').style.display = 'none';
+        document.getElementById('uploadHint').style.display = 'none';
+        document.getElementById('fileInfo').style.display = 'block';
+        document.getElementById('fileInfo').textContent =
+          `${file.name} (${(file.size/1024/1024).toFixed(2)} MB)`;
+      } else {
+        document.getElementById('addFilesBtn').style.display = '';
+        document.getElementById('uploadHint').style.display = '';
+        document.getElementById('fileInfo').style.display = 'none';
+        document.getElementById('fileInfo').textContent = '';
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+
